@@ -1,0 +1,26 @@
+@host=http://localhost:3000
+
+###
+
+GET {{host}}/ping
+
+###
+
+GET {{host}}/api/plugin-a
+Content-Type: application/json
+
+###
+
+POST {{host}}/api/plugin-b
+Content-Type: application/json
+
+{
+	"oke": true
+}
+
+###
+
+GET {{host}}/
+Content-Type: application/json
+
+###

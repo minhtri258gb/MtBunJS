@@ -1,0 +1,21 @@
+{
+  "name": "mtbun",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "bun run src/main.js",
+    "debug": "bun --watch src/main.js",
+    "build": "bun build --compile src/main.js --outfile server"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@elysiajs/static": "^1.4.10",
+    "elysia": "^1.4.29"
+  }
+}
