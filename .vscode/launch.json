@@ -8,6 +8,15 @@
       "port": 6499,
       "autoAttachChildProcesses": true,
       "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Debug Bun",
+      "type": "bun",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/main.js",
+      "cwd": "${workspaceFolder}",
+      "stopOnEntry": false,
+      "watchMode": false
     }
   ]
 }

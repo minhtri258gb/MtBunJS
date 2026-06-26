@@ -25,13 +25,14 @@ export default async function loadPlugins(app) {
 				const module = await import(filePath);
 
 				if (typeof module.default === 'function') {
-					app.use(module.default);
+					module.default(app);
+					// app.use();
 					console.log(`✅ Đã load thành công plugin JS: ${file}`);
 				} else {
 					console.log(`⚠️ Bỏ qua ${file}: Không tìm thấy 'export default function'`);
 				}
 			} catch (error) {
-				console.error(`❌ Lỗi khi load plugin ${file}:`, error);
+				console.error(`❌ Lỗi khi load plugin ${file}:\n`, error);
 			}
 		}
 	}

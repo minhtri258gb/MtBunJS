@@ -1,4 +1,4 @@
-@host=http://localhost:3000
+@host=http://localhost:258
 
 ###
 
@@ -22,5 +22,41 @@ Content-Type: application/json
 
 GET {{host}}/
 Content-Type: application/json
+
+###
+
+# @name file_list
+GET {{host}}/api/file/list?folder=/
+
+###
+
+# @name file_check
+GET {{host}}/api/file/check?file=/index.html
+
+###
+
+# @name file_download
+GET {{host}}/api/file/download?file=/index.html
+
+###
+
+# @name file_upload
+POST {{host}}/api/file/upload
+Content-Type: application/json
+
+#?
+
+###
+
+# @name cmd
+POST {{host}}/api/cmd
+Content-Type: application/json
+
+{
+	"paths": ["C:/Apps/piper"],
+	"command": "piper",
+	"args": ["-h"],
+	"cwd": "."
+}
 
 ###
