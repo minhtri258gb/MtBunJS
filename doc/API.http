@@ -1,27 +1,19 @@
 @host=http://localhost:258
 
 ###
-
 GET {{host}}/ping
 
 ###
 
 GET {{host}}/api/plugin-a
-Content-Type: application/json
 
 ###
 
 POST {{host}}/api/plugin-b
-Content-Type: application/json
-
-{
-	"oke": true
-}
 
 ###
 
 GET {{host}}/
-Content-Type: application/json
 
 ###
 
@@ -53,8 +45,8 @@ POST {{host}}/api/cmd
 Content-Type: application/json
 
 {
-	"paths": ["C:/Apps/piper"],
-	"command": "piper",
+	"paths": ["D:/Apps/7-Zip"],
+	"command": "7z",
 	"args": ["-h"],
 	"cwd": "."
 }

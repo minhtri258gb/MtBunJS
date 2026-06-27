@@ -2,13 +2,29 @@ import { readdir, exists } from 'node:fs/promises'; // unlink
 import { join } from 'node:path';
 import { t } from 'elysia';
 
-const PUBLIC_DIR = join(import.meta.dirname, '../public');
-
 export default function (app) {
 
-	app.get('/api/file/list', async({ query: { folder }, set }) => {
+	const publicFolder = join(process.cwd(), 'public');
+
+	app.get('/api/file/list', async({ query, set }) => {
 		try {
-			const files = await readdir(join(PUBLIC_DIR, folder));
+
+			const { folder } = query;
+
+			if (!folder) {
+				set.status = 400;
+				return { success: false, message: 'Thiếu tham số folder' };
+			}
+
+			const fullPath = join(publicFolder, folder);
+
+			if (!existsSync(fullPath)) {
+				set.status = 300;
+				return { success: false, message: `Folder không tồn tại: ${fullPath}` };
+			}
+
+			const files = await readdir(fullPath);
+
 			return { success: true, data: files };
 		}
 		catch (ex) {
@@ -19,7 +35,7 @@ export default function (app) {
 
 	app.get('/api/file/check', async ({ query: { file }, set }) => {
 		try {
-			const filePath = join(PUBLIC_DIR, file);
+			const filePath = join(publicFolder, file);
 			const isExist = await exists(filePath);
 
 			return { success: true, result: isExist };
@@ -32,7 +48,7 @@ export default function (app) {
 
 	app.get('/api/file/download', async ({ query: { file }, set }) => {
 		try {
-			const filePath = join(PUBLIC_DIR, file);
+			const filePath = join(publicFolder, file);
 			const isExist = await exists(filePath);
 
 			if (!isExist) {
@@ -51,8 +67,8 @@ export default function (app) {
 
 	app.post('/api/file/upload', async ({ body: { file }, set }) => {
 		try {
-			const filePath = join(PUBLIC_DIR, file.name);
-			
+			const filePath = join(publicFolder, file.name);
+
 			// Bun.write() ghi file cực nhanh từ thực thể File/Blob
 			await Bun.write(filePath, file);
 
@@ -77,7 +93,7 @@ export default function (app) {
 
 	// app.post('/api/file/delete', async ({ query: { file }, set }) => {
 	// 	try {
-	// 		const filePath = join(PUBLIC_DIR, file);
+	// 		const filePath = join(publicFolder, file);
 	// 		const isExist = await exists(filePath);
 
 	// 		if (!isExist) {
