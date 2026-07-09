@@ -1,9 +1,9 @@
 import { t } from 'elysia';
 import duckdb from '@duckdb/node-api';
 
-export default async function registerLibrary() {
+export default function registerLibrary() {
 	globalThis.lib = {
-		elysia: { t },
-		duckdb,
+		elysia: { t }, // HTTP Server
+		duckdb, // Database DuckDB
 	};
 }

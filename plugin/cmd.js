@@ -1,7 +1,7 @@
-export default function (app) {
+export default function() {
 
 	// Reference
-	let t = globalThis.lib.elysia.t;
+	let t = lib.elysia.t;
 
 	// Define API
 	app.post('/api/cmd', async ({ body, set }) => {

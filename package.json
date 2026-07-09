@@ -8,9 +8,6 @@
     "debug": "bun --watch src/main.js",
     "build": "bun build --compile src/main.js --outfile server"
   },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
   "peerDependencies": {
     "typescript": "^5"
   },
@@ -19,5 +16,8 @@
     "@elysiajs/static": "^1.4.10",
     "dotenv": "^17.4.2",
     "elysia": "^1.4.29"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
   }
 }

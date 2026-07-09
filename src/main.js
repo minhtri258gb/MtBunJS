@@ -14,10 +14,11 @@ registerLibrary();
 
 // Tạo Server HTTP
 const app = new Elysia();
+globalThis.app = app;
 
 // 1. Phục vụ file tĩnh từ thư mục /public
 let pathPublic = process.env.PATH_PUBLIC || 'public';
-app.use(staticPlugin({ assets: pathPublic, prefix: '/' }));
+app.use(staticPlugin({ assets: pathPublic, prefix: '/', indexHTML: true }));
 
 // Route cơ bản
 app.get('/', () => new Response(null, { status: 301, headers: { 'Location': '/home' }}));

@@ -6,9 +6,8 @@ export default async function loadPlugins(app) {
 	// Tự động load các plugin .js từ thư mục /plugin
 	const pluginDir = join(process.cwd(), 'plugin');
 
-	if (!existsSync(pluginDir)) {
+	if (!existsSync(pluginDir))
 		mkdirSync(pluginDir);
-	}
 
 	const files = readdirSync(pluginDir);
 
@@ -25,13 +24,14 @@ export default async function loadPlugins(app) {
 				const module = await import(filePath);
 
 				if (typeof module.default === 'function') {
-					module.default(app);
+					module.default();
 					// app.use();
 					console.log(`✅ Đã load thành công plugin JS: ${file}`);
-				} else {
-					console.log(`⚠️ Bỏ qua ${file}: Không tìm thấy 'export default function'`);
 				}
-			} catch (error) {
+				else
+					console.log(`⚠️ Bỏ qua ${file}: Không tìm thấy 'export default function'`);
+			}
+			catch (error) {
 				console.error(`❌ Lỗi khi load plugin ${file}:\n`, error);
 			}
 		}

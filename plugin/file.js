@@ -1,10 +1,10 @@
 import { readdir, exists } from 'node:fs/promises'; // unlink
 import { join } from 'node:path';
 
-export default function (app) {
+export default function() {
 
 	// Reference
-	let t = globalThis.lib.elysia.t;
+	let t = lib.elysia.t;
 
 	const publicFolder = join(process.cwd(), 'public');
 
@@ -19,15 +19,13 @@ export default function (app) {
 	};
 
 	// Define API
-	app.get('/api/file-list', async({ query, set }) => {
+	app.get('/api/file-list', async ({ query, set }) => {
 		try {
 
 			const { folder } = query;
 
-			if (!folder) {
-				set.status = 400;
+			if (!folder)
 				return { success: false, message: 'Thiếu tham số folder' };
-			}
 
 			const fullPath = join(publicFolder, folder);
 
@@ -38,15 +36,16 @@ export default function (app) {
 
 			const files = await readdir(fullPath);
 
-			return { success: true, data: files };
+			return { success: true, result: files };
 		}
 		catch (ex) {
 			set.status = 500;
 			return { success: false, message: ex.message };
 		}
 	});
-	app.get('/api/file-check', async ({ query: { file }, set }) => {
+	app.get('/api/file-check', async ({ query, set }) => {
 		try {
+			const { file } = query;
 			const filePath = join(publicFolder, file);
 			const isExist = await exists(filePath);
 
@@ -57,17 +56,15 @@ export default function (app) {
 			return { success: false, message: ex.message };
 		}
 	});
-	app.get('/api/file-download', async ({ query: { file }, set }) => {
+	app.get('/api/file-download', async ({ query, set }) => {
 		try {
+			const { file } = query;
 			const filePath = join(publicFolder, file);
 			const isExist = await exists(filePath);
 
-			if (!isExist) {
-				set.status = 404;
-				return { error: 'File không tồn tại' };
-			}
+			if (!isExist)
+				return { success: false, message: 'File không tồn tại' };
 
-			// Bun.file() tự động xử lý stream và content-type rất tối ưu
 			return Bun.file(filePath);
 		}
 		catch (ex) {
@@ -83,12 +80,7 @@ export default function (app) {
 			await Bun.write(filePath, file);
 
 			set.status = 201;
-			return {
-				success: true,
-				message: 'Upload file thành công',
-				fileName: file.name,
-				size: file.size
-			};
+			return { success: true, fileName: file.name, size: file.size };
 		}
 		catch (ex) {
 			set.status = 500;
@@ -100,7 +92,7 @@ export default function (app) {
 			file: t.File()
 		})
 	});
-	// app.post('/api/file/delete', async ({ query: { file }, set }) => {
+	// app.post('/api/file-delete', async ({ query: { file }, set }) => {
 	// 	try {
 	// 		const filePath = join(publicFolder, file);
 	// 		const isExist = await exists(filePath);

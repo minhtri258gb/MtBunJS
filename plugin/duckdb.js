@@ -1,14 +1,14 @@
-export default function (app) {
+export default function() {
 
 	// Reference
-	let t = globalThis.lib.elysia.t;
+	let t = lib.elysia.t;
 
 	// Define API
 	app.get('/api/duckdb-info', async ({ set }) => {
 		try {
 
 			// Ref
-			let duckdb = globalThis.lib.duckdb;
+			let duckdb = lib.duckdb;
 
 			let version = duckdb.version();
 			let config = duckdb.configurationOptionDescriptions();
