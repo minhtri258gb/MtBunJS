@@ -1,42 +1,34 @@
 @host=http://localhost:258
 
 ###
-GET {{host}}/ping
-
-###
-
-GET {{host}}/api/plugin-a
-
-###
-
-POST {{host}}/api/plugin-b
-
-###
 
 GET {{host}}/
 
 ###
 
-# @name file_list
-GET {{host}}/api/file/list?folder=/
+# @name config-get
+GET {{host}}/api/config-get?key=PATH_PUBLIC
 
 ###
 
-# @name file_check
-GET {{host}}/api/file/check?file=/index.html
+# @name file-list
+GET {{host}}/api/file-list?folder=/
 
 ###
 
-# @name file_download
-GET {{host}}/api/file/download?file=/index.html
+# @name file-check
+GET {{host}}/api/file-check?file=/index.html
 
 ###
 
-# @name file_upload
-POST {{host}}/api/file/upload
+# @name file-download
+GET {{host}}/api/file-download?file=/index.html
+
+###
+
+# @name file-upload
+POST {{host}}/api/file-upload
 Content-Type: application/json
-
-#?
 
 ###
 
@@ -49,6 +41,55 @@ Content-Type: application/json
 	"command": "7z",
 	"args": ["-h"],
 	"cwd": "."
+}
+
+###
+
+# @name duckdb-info
+GET {{host}}/api/duckdb-info
+
+###
+
+# @name duckdb-run
+POST {{host}}/api/duckdb-run
+Content-Type: application/json
+
+{
+	"database": "D:/Projects/MtBunJS/private/mydb.duckdb",
+	"sql": "CREATE TABLE users (id INTEGER PRIMARY KEY, name VARCHAR, email VARCHAR, created_at TIMESTAMP DEFAULT current_timestamp)"
+}
+
+###
+
+# @name duckdb-run
+POST {{host}}/api/duckdb-run
+Content-Type: application/json
+
+{
+	"database": "D:/Projects/MtBunJS/private/mydb.duckdb",
+	"sql": "DROP TABLE users"
+}
+
+###
+
+# @name duckdb-run
+POST {{host}}/api/duckdb-run
+Content-Type: application/json
+
+{
+	"database": "D:/Projects/MtBunJS/private/mydb.duckdb",
+	"sql": "INSER users()"
+}
+
+###
+
+# @name duckdb-query
+POST {{host}}/api/duckdb-query
+Content-Type: application/json
+
+{
+	"database": "D:/Projects/MtBunJS/private/mydb.duckdb",
+	"sql": "SELECT * FROM users"
 }
 
 ###

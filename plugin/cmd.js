@@ -1,6 +1,9 @@
-import { t } from 'elysia';
-
 export default function (app) {
+
+	// Reference
+	let t = globalThis.lib.elysia.t;
+
+	// Define API
 	app.post('/api/cmd', async ({ body, set }) => {
 		try {
 			let { paths, command, args, cwd } = body;

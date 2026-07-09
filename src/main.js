@@ -1,22 +1,28 @@
+import { config } from 'dotenv';
+import { Elysia } from 'elysia';
+import { staticPlugin } from '@elysiajs/static';
+
+import registerLibrary from './lib';
+import loadPlugins from './plugin';
+
 
 // Load biến môi trường từ .env
-import { config } from 'dotenv';
 config();
 
+// Đăng ký thư viện
+registerLibrary();
+
 // Tạo Server HTTP
-import { Elysia } from 'elysia';
 const app = new Elysia();
 
 // 1. Phục vụ file tĩnh từ thư mục /public
-import { staticPlugin } from '@elysiajs/static';
-app.use(staticPlugin({ assets: 'public', prefix: '/' }));
+let pathPublic = process.env.PATH_PUBLIC || 'public';
+app.use(staticPlugin({ assets: pathPublic, prefix: '/' }));
 
 // Route cơ bản
-app.get('/', () => "Server chính JS đang chạy!");
-app.get('/ping', () => "pong");
+app.get('/', () => new Response(null, { status: 301, headers: { 'Location': '/home' }}));
 
 // Khởi tạo Plugin
-import loadPlugins from './plugin';
 await loadPlugins(app);
 
 // 3. Khởi chạy Server

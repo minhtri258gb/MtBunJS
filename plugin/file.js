@@ -1,12 +1,25 @@
 import { readdir, exists } from 'node:fs/promises'; // unlink
 import { join } from 'node:path';
-import { t } from 'elysia';
 
 export default function (app) {
 
+	// Reference
+	let t = globalThis.lib.elysia.t;
+
 	const publicFolder = join(process.cwd(), 'public');
 
-	app.get('/api/file/list', async({ query, set }) => {
+	// Lấy danh sách PATH
+	let listPath = [];
+	for (let key in process.env) {
+		if (key.startsWith('PATH_'))
+			listPath.push(process.env[key]);
+	}
+	let fooCheckPath = (path) => {
+
+	};
+
+	// Define API
+	app.get('/api/file-list', async({ query, set }) => {
 		try {
 
 			const { folder } = query;
@@ -18,7 +31,7 @@ export default function (app) {
 
 			const fullPath = join(publicFolder, folder);
 
-			if (!existsSync(fullPath)) {
+			if (!await exists(fullPath)) {
 				set.status = 300;
 				return { success: false, message: `Folder không tồn tại: ${fullPath}` };
 			}
@@ -32,8 +45,7 @@ export default function (app) {
 			return { success: false, message: ex.message };
 		}
 	});
-
-	app.get('/api/file/check', async ({ query: { file }, set }) => {
+	app.get('/api/file-check', async ({ query: { file }, set }) => {
 		try {
 			const filePath = join(publicFolder, file);
 			const isExist = await exists(filePath);
@@ -45,8 +57,7 @@ export default function (app) {
 			return { success: false, message: ex.message };
 		}
 	});
-
-	app.get('/api/file/download', async ({ query: { file }, set }) => {
+	app.get('/api/file-download', async ({ query: { file }, set }) => {
 		try {
 			const filePath = join(publicFolder, file);
 			const isExist = await exists(filePath);
@@ -64,8 +75,7 @@ export default function (app) {
 			return { success: false, message: ex.message };
 		}
 	});
-
-	app.post('/api/file/upload', async ({ body: { file }, set }) => {
+	app.post('/api/file-upload', async ({ body: { file }, set }) => {
 		try {
 			const filePath = join(publicFolder, file.name);
 
@@ -90,7 +100,6 @@ export default function (app) {
 			file: t.File()
 		})
 	});
-
 	// app.post('/api/file/delete', async ({ query: { file }, set }) => {
 	// 	try {
 	// 		const filePath = join(publicFolder, file);
@@ -109,5 +118,4 @@ export default function (app) {
 	// 		return { success: false, message: ex.message };
 	// 	}
 	// });
-
 }
