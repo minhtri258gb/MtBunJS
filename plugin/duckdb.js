@@ -70,7 +70,7 @@ export default function() {
 			let duckdb = globalThis.lib.duckdb;
 
 			// Use DuckDB
-			const instance = await duckdb.DuckDBInstance.create(database);
+			const instance = await duckdb.DuckDBInstance.create(database, { read_only: true });
 			const connection = await instance.connect();
 			let rowObjects = null, errorMessage = '';
 			try {

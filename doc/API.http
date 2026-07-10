@@ -88,8 +88,10 @@ POST {{host}}/api/duckdb-query
 Content-Type: application/json
 
 {
-	"database": "D:/Projects/MtBunJS/private/mydb.duckdb",
-	"sql": "SELECT * FROM users"
+	"database": "D:/Projects/MtBunJS/private/music.duckdb",
+	"sql": "SELECT name,rate,duration,array_to_string(tags,',') tags,decibel,trackbegin,trackend,miss FROM music"
 }
 
 ###
+
+	# "sql": "SELECT name, rate, duration, to_json(tags) tags,decibel,trackbegin,trackend,miss FROM music"

@@ -1,7 +1,7 @@
 import { readdirSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
-export default async function loadPlugins(app) {
+export default async function loadPlugins() {
 
 	// Tự động load các plugin .js từ thư mục /plugin
 	const pluginDir = join(process.cwd(), 'plugin');
@@ -25,7 +25,6 @@ export default async function loadPlugins(app) {
 
 				if (typeof module.default === 'function') {
 					module.default();
-					// app.use();
 					console.log(`✅ Đã load thành công plugin JS: ${file}`);
 				}
 				else

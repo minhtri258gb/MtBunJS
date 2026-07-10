@@ -11,7 +11,7 @@
 		{
 			"label": "Build",
 			"type": "shell",
-			"command": "bun build --compile src/main.js --outfile server",
+			"command": "bun build --compile src/main.js --outfile server --sourcemap",
 			"options": { "cwd": "${workspaceFolder}" },
 			"group": { "kind": "build", "isDefault": true }
 		},

@@ -9,3 +9,5 @@
 	> bun add dotenv
 - DuckDB: Database embed
 	> bun add @duckdb/node-api
+- Tray Hook: Tray Icon
+	> bun add tray-hook

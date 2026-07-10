@@ -4,6 +4,8 @@ import { staticPlugin } from '@elysiajs/static';
 
 import registerLibrary from './lib';
 import loadPlugins from './plugin';
+import trayicon from './tray';
+import hiddenConsole from './utils/hideConsole';
 
 
 // Load biến môi trường từ .env
@@ -24,7 +26,13 @@ app.use(staticPlugin({ assets: pathPublic, prefix: '/', indexHTML: true }));
 app.get('/', () => new Response(null, { status: 301, headers: { 'Location': '/home' }}));
 
 // Khởi tạo Plugin
-await loadPlugins(app);
+await loadPlugins();
+
+// Start Tray
+await trayicon();
+
+// Ẩn console
+hiddenConsole(true);
 
 // 3. Khởi chạy Server
 let port = Number(process.env.PORT || '3000');

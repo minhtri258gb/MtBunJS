@@ -6,7 +6,10 @@
   "scripts": {
     "start": "bun run src/main.js",
     "debug": "bun --watch src/main.js",
-    "build": "bun build --compile src/main.js --outfile server"
+    "build": "bun build --compile src/main.js --outfile server --sourcemap"
+  },
+  "bun": {
+    "allowNative": true
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -15,7 +18,8 @@
     "@duckdb/node-api": "^1.5.4-r.1",
     "@elysiajs/static": "^1.4.10",
     "dotenv": "^17.4.2",
-    "elysia": "^1.4.29"
+    "elysia": "^1.4.29",
+    "tray-hook": "^1.1.1"
   },
   "devDependencies": {
     "@types/bun": "latest"
