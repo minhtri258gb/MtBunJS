@@ -1,0 +1,25 @@
+@host=http://localhost:258
+
+###
+
+GET {{host}}/
+
+###
+
+# @name config-get
+GET {{host}}/api/config-get?key=PATH_PUBLIC
+
+###
+
+# @name cmd
+POST {{host}}/api/cmd
+Content-Type: application/json
+
+{
+	"paths": ["D:/Apps/7-Zip"],
+	"command": "7z",
+	"args": ["-h"],
+	"cwd": "."
+}
+
+###

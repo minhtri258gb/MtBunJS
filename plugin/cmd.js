@@ -4,8 +4,15 @@ export default function() {
 	let t = lib.elysia.t;
 
 	// Define API
-	app.post('/api/cmd', async ({ body, set }) => {
+	server.post('/api/cmd', async ({ request, body, set }) => {
 		try {
+
+			// Check Permission
+			if (!auth.check(request)) {
+				set.status = 403;
+				return { success: false, error: ex.message };
+			}
+
 			let { paths, command, args, cwd } = body;
 
 			if (paths == null)

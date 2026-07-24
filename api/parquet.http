@@ -1,0 +1,13 @@
+@host=http://localhost:258
+
+###
+
+# @name parquet-get
+POST {{host}}/api/parquet-get
+Content-Type: application/json
+
+{
+	"file": "music"
+}
+
+###

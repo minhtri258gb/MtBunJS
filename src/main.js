@@ -3,6 +3,7 @@ import { Elysia } from 'elysia';
 import { staticPlugin } from '@elysiajs/static';
 
 import registerLibrary from './lib';
+import initAuthn from './auth';
 import loadPlugins from './plugin';
 import trayicon from './tray';
 import hiddenConsole from './utils/hideConsole';
@@ -14,16 +15,19 @@ config();
 // Đăng ký thư viện
 registerLibrary();
 
+// Init Authn
+initAuthn();
+
 // Tạo Server HTTP
-const app = new Elysia();
-globalThis.app = app;
+const server = new Elysia();
+globalThis.server = server;
 
 // 1. Phục vụ file tĩnh từ thư mục /public
 let pathPublic = process.env.PATH_PUBLIC || 'public';
-app.use(staticPlugin({ assets: pathPublic, prefix: '/', indexHTML: true }));
+server.use(staticPlugin({ assets: pathPublic, prefix: '/', indexHTML: true }));
 
 // Route cơ bản
-app.get('/', () => new Response(null, { status: 301, headers: { 'Location': '/home' }}));
+server.get('/', () => new Response(null, { status: 301, headers: { 'Location': '/home' }}));
 
 // Khởi tạo Plugin
 await loadPlugins();
@@ -32,10 +36,11 @@ await loadPlugins();
 await trayicon();
 
 // Ẩn console
-hiddenConsole(true);
+if (process.env.DEBUG != 'true')
+	hiddenConsole(true);
 
 // 3. Khởi chạy Server
 let port = Number(process.env.PORT || '3000');
-app.listen(port, () => {
+server.listen(port, () => {
 	console.log(`🦊 Server Bun (JS) đang chạy tại: http://localhost:${port}`);
 });

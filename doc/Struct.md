@@ -11,3 +11,5 @@
 	> bun add @duckdb/node-api
 - Tray Hook: Tray Icon
 	> bun add tray-hook
+- Hyparquet: Data File
+	> bun add hyparquet

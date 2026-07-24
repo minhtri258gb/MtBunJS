@@ -1,9 +1,14 @@
 @echo off
 
+if not defined WT_SESSION (
+  start wt nt -p "Command Prompt" -d . "%~f0"
+  exit
+)
+
 title BUILD
 
 cd ..
 
-bun build --compile src/main.js --outfile server
+bun run src/build.js
 
 timeout /t 5

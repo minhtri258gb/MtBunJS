@@ -1,0 +1,24 @@
+@host=http://localhost:258
+
+###
+
+# @name file-list
+GET {{host}}/api/file-list?folder=/
+
+###
+
+# @name file-check
+GET {{host}}/api/file-check?file=/index.html
+
+###
+
+# @name file-download
+GET {{host}}/api/file-download?file=/index.html
+
+###
+
+# @name file-upload
+POST {{host}}/api/file-upload
+Content-Type: application/json
+
+###

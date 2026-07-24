@@ -3,6 +3,8 @@ import { join } from 'path';
 
 export default async function loadPlugins() {
 
+	const h_debug = false;
+
 	// Tự động load các plugin .js từ thư mục /plugin
 	const pluginDir = join(process.cwd(), 'plugin');
 
@@ -11,8 +13,8 @@ export default async function loadPlugins() {
 
 	const files = readdirSync(pluginDir);
 
-	console.log("-----------------------------------------");
-	console.log("🚀 Đang khởi tạo hệ thống Plugin (JS)...");
+	h_debug && console.log("-----------------------------------------");
+	h_debug && console.log("🚀 Đang khởi tạo hệ thống Plugin (JS)...");
 	for (const file of files) {
 
 		// Chỉ quét các file có đuôi .js
@@ -25,16 +27,16 @@ export default async function loadPlugins() {
 
 				if (typeof module.default === 'function') {
 					module.default();
-					console.log(`✅ Đã load thành công plugin JS: ${file}`);
+					h_debug && console.log(`✅ Đã load thành công plugin JS: ${file}`);
 				}
 				else
-					console.log(`⚠️ Bỏ qua ${file}: Không tìm thấy 'export default function'`);
+					h_debug && console.log(`⚠️ Bỏ qua ${file}: Không tìm thấy 'export default function'`);
 			}
 			catch (error) {
-				console.error(`❌ Lỗi khi load plugin ${file}:\n`, error);
+				h_debug && console.error(`❌ Lỗi khi load plugin ${file}:\n`, error);
 			}
 		}
 	}
-	console.log("-----------------------------------------");
+	h_debug && console.log("-----------------------------------------");
 
 }

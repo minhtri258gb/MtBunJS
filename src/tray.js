@@ -48,7 +48,7 @@ export default async function trayicon() {
 				break;
 			case 'quit': // Tắt Server
 				tray.quit(); // Dừng Tray
-				await app.stop(); // Dừng Elysia
+				await server.stop(); // Dừng Elysia
 				process.exit(0); // Dừng cmd
 				break;
 		}

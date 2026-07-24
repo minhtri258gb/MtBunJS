@@ -1,0 +1,25 @@
+@host=http://localhost:258
+
+###
+
+# @name sqlite-run
+POST {{host}}/api/sqlite-run
+Content-Type: application/json
+
+{
+	"database": "music",
+	"sql": "CREATE TABLE users (id INTEGER PRIMARY KEY, name VARCHAR, email VARCHAR, created_at TIMESTAMP DEFAULT current_timestamp)"
+}
+
+###
+
+# @name sqlite-query
+POST {{host}}/api/sqlite-query
+Content-Type: application/json
+
+{
+	"database": "D:/Projects/MtBunJS/private/music.db",
+	"sql": "SELECT name,rate,duration,array_to_string(tags,',') tags,decibel,trackbegin,trackend,miss FROM music"
+}
+
+###

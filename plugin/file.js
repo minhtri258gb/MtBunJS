@@ -19,7 +19,7 @@ export default function() {
 	};
 
 	// Define API
-	app.get('/api/file-list', async ({ query, set }) => {
+	server.get('/api/file-list', async ({ query, set }) => {
 		try {
 
 			const { folder } = query;
@@ -29,10 +29,8 @@ export default function() {
 
 			const fullPath = join(publicFolder, folder);
 
-			if (!await exists(fullPath)) {
-				set.status = 300;
+			if (!await exists(fullPath))
 				return { success: false, message: `Folder không tồn tại: ${fullPath}` };
-			}
 
 			const files = await readdir(fullPath);
 
@@ -43,7 +41,7 @@ export default function() {
 			return { success: false, message: ex.message };
 		}
 	});
-	app.get('/api/file-check', async ({ query, set }) => {
+	server.get('/api/file-check', async ({ query, set }) => {
 		try {
 			const { file } = query;
 			const filePath = join(publicFolder, file);
@@ -56,7 +54,7 @@ export default function() {
 			return { success: false, message: ex.message };
 		}
 	});
-	app.get('/api/file-download', async ({ query, set }) => {
+	server.get('/api/file-read', async ({ query, set }) => {
 		try {
 			const { file } = query;
 			const filePath = join(publicFolder, file);
@@ -72,13 +70,23 @@ export default function() {
 			return { success: false, message: ex.message };
 		}
 	});
-	app.post('/api/file-upload', async ({ body: { file }, set }) => {
+	server.post('/api/file-write', async ({ request, body, set }) => {
 		try {
+
+			// Check Permission
+			if (!auth.check(request)) {
+				set.status = 403;
+				return { success: false, error: ex.message };
+			}
+
+			let { file } = body;
+
 			const filePath = join(publicFolder, file.name);
 
 			// Bun.write() ghi file cực nhanh từ thực thể File/Blob
 			await Bun.write(filePath, file);
 
+			// Return
 			set.status = 201;
 			return { success: true, fileName: file.name, size: file.size };
 		}
@@ -92,15 +100,13 @@ export default function() {
 			file: t.File()
 		})
 	});
-	// app.post('/api/file-delete', async ({ query: { file }, set }) => {
+	// server.post('/api/file-delete', async ({ query: { file }, set }) => {
 	// 	try {
 	// 		const filePath = join(publicFolder, file);
 	// 		const isExist = await exists(filePath);
 
-	// 		if (!isExist) {
-	// 			set.status = 404;
+	// 		if (!isExist)
 	// 			return { success: false, message: 'File không tồn tại' };
-	// 		}
 
 	// 		await unlink(filePath);
 	// 		return { success: true, message: `Đã xóa file ${filename} thành công` };
