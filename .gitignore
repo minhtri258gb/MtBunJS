@@ -4,3 +4,4 @@
 .env
 bun.lock
 server.exe
+/package-lock.json

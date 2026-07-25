@@ -1,5 +1,5 @@
-import { readdir, exists } from 'node:fs/promises'; // unlink
-import { join } from 'node:path';
+import { readdir, exists, mkdir, stat } from 'node:fs/promises';
+import { join, dirname } from 'node:path';
 
 export default function() {
 
@@ -24,17 +24,32 @@ export default function() {
 
 			const { folder } = query;
 
-			if (!folder)
-				return { success: false, message: 'Thiếu tham số folder' };
+			if (!folder) {
+				set.status = 400;
+				return 'Thiếu tham số folder';
+			}
 
-			const fullPath = join(publicFolder, folder);
+			if (!await exists(folder)) {
+				set.status = 404;
+				return `Folder không tồn tại: ${folder}`;
+			}
 
-			if (!await exists(fullPath))
-				return { success: false, message: `Folder không tồn tại: ${fullPath}` };
+			const items = await readdir(folder);
 
-			const files = await readdir(fullPath);
+			let result = [];
+			for (const item of items) {
+				const fullPath = join(folder, item);
+				const stats = await stat(fullPath);
 
-			return { success: true, result: files };
+				result.push({
+					name: item,
+					size: stats.size,
+					date: stats.mtime,
+					isFolder: stats.isDirectory(),
+				});
+			}
+
+			return result;
 		}
 		catch (ex) {
 			set.status = 500;
@@ -45,9 +60,7 @@ export default function() {
 		try {
 			const { file } = query;
 			const filePath = join(publicFolder, file);
-			const isExist = await exists(filePath);
-
-			return { success: true, result: isExist };
+			return await exists(filePath);
 		}
 		catch (ex) {
 			set.status = 500;
@@ -56,49 +69,99 @@ export default function() {
 	});
 	server.get('/api/file-read', async ({ query, set }) => {
 		try {
-			const { file } = query;
-			const filePath = join(publicFolder, file);
+			const { folder, file } = query;
+			const filePath = join(folder, file);
 			const isExist = await exists(filePath);
 
-			if (!isExist)
-				return { success: false, message: 'File không tồn tại' };
+			if (!isExist) {
+				set.status = 400;
+				return 'File không tồn tại';
+			}
 
 			return Bun.file(filePath);
 		}
 		catch (ex) {
 			set.status = 500;
-			return { success: false, message: ex.message };
+			return ex.message;
 		}
 	});
-	server.post('/api/file-write', async ({ request, body, set }) => {
+	server.post('/api/file-write', async ({ request, query, body, set }) => {
 		try {
 
 			// Check Permission
 			if (!auth.check(request)) {
 				set.status = 403;
-				return { success: false, error: ex.message };
+				return ex.message;
 			}
 
+			let { folder, confirm } = query;
 			let { file } = body;
 
-			const filePath = join(publicFolder, file.name);
+			const filePath = join(folder, file.name);
 
-			// Bun.write() ghi file cực nhanh từ thực thể File/Blob
+			// Kiểm tra tồn tại
+			if (!confirm) {
+				let isExists = await exists(filePath);
+				if (isExists) {
+					set.status = 400;
+					return 'File đã tồn tại!';
+				}
+			}
+
+			// Ghi file vào đĩa
 			await Bun.write(filePath, file);
 
 			// Return
 			set.status = 201;
-			return { success: true, fileName: file.name, size: file.size };
+			return true;
 		}
 		catch (ex) {
 			set.status = 500;
-			return { success: false, error: ex.message };
+			return ex.message;
 		}
 	}, {
 		// Validate dữ liệu truyền lên bắt buộc phải có file (gửi qua Form Data)
 		body: t.Object({
 			file: t.File()
 		})
+	});
+	server.post('/api/file-writeText', async ({ request, query, body, set }) => {
+		try {
+
+			// Check Permission
+			if (!auth.check(request)) {
+				set.status = 403;
+				return ex.message;
+			}
+
+			let { file, confirm } = query;
+			let content = body;
+
+			// Kiểm tra folder tồn tại
+			const folderPath = dirname(file);
+			if (!exists(folderPath))
+				mkdir(folderPath, { recursive: true });
+
+			// Kiểm tra tồn tại
+			if (!confirm) {
+				let isExists = await exists(file);
+				if (isExists) {
+					set.status = 400;
+					return 'File đã tồn tại!';
+				}
+			}
+
+			// Ghi file vào đĩa
+			await Bun.write(file, content);
+
+			// Return
+			set.status = 201;
+			return { fileName: file.name, size: file.size };
+		}
+		catch (ex) {
+			set.status = 500;
+			return ex.message;
+		}
 	});
 	// server.post('/api/file-delete', async ({ query: { file }, set }) => {
 	// 	try {

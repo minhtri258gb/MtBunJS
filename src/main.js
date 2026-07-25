@@ -11,6 +11,7 @@ import hiddenConsole from './utils/hideConsole';
 
 // Load biến môi trường từ .env
 config();
+process.env.PATH_SERVER = process.cwd().replaceAll('\\', '/');
 
 // Đăng ký thư viện
 registerLibrary();

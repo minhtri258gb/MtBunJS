@@ -1,0 +1,8 @@
+@host=http://localhost:258
+
+###
+
+# @name info-ip
+GET {{host}}/api/info-ip
+
+###
