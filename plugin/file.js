@@ -53,7 +53,7 @@ export default function() {
 		}
 		catch (ex) {
 			set.status = 500;
-			return { success: false, message: ex.message };
+			return ex.message;
 		}
 	});
 	server.get('/api/file-check', async ({ query, set }) => {
@@ -64,7 +64,7 @@ export default function() {
 		}
 		catch (ex) {
 			set.status = 500;
-			return { success: false, message: ex.message };
+			return ex.message;
 		}
 	});
 	server.get('/api/file-read', async ({ query, set }) => {
@@ -74,8 +74,8 @@ export default function() {
 			const isExist = await exists(filePath);
 
 			if (!isExist) {
-				set.status = 400;
-				return 'File không tồn tại';
+				set.status = 404;
+				return `File "${file}" không tồn tại`;
 			}
 
 			return Bun.file(filePath);
@@ -168,15 +168,17 @@ export default function() {
 	// 		const filePath = join(publicFolder, file);
 	// 		const isExist = await exists(filePath);
 
-	// 		if (!isExist)
-	// 			return { success: false, message: 'File không tồn tại' };
+	//		if (!isExist) {
+	//			set.status = 404;
+	//			return 'File không tồn tại';
+	//		}
 
 	// 		await unlink(filePath);
 	// 		return { success: true, message: `Đã xóa file ${filename} thành công` };
 	// 	}
 	// 	catch (ex) {
 	// 		set.status = 500;
-	// 		return { success: false, message: ex.message };
+	// 		return ex.message;
 	// 	}
 	// });
 }
