@@ -18,6 +18,16 @@ export default function() {
 			// Input
 			let { database, sql } = body;
 
+			// Validate
+			if (database.length == 0) {
+				set.status = 400;
+				return 'Missing body: database';
+			}
+			if (sql.length == 0) {
+				set.status = 400;
+				return 'Missing body: sql';
+			}
+
 			// Use DuckDB
 			const db = new Database(`database/${database}.sqlite`);
 			let errorMessage = '';
@@ -31,11 +41,13 @@ export default function() {
 				db.close(false);
 			}
 
-			if (errorMessage.length > 0)
-				return { success: false, message: errorMessage };
+			if (errorMessage.length > 0) {
+				set.status = 400;
+				return errorMessage;
+			}
 
 			// Return
-			return { success: true };
+			return true;
 		}
 		catch (ex) {
 			set.status = 500;
