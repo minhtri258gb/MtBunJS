@@ -69,16 +69,15 @@ export default function() {
 	});
 	server.get('/api/file-read', async ({ query, set }) => {
 		try {
-			const { folder, file } = query;
-			const filePath = join(folder, file);
-			const isExist = await exists(filePath);
+			const { file } = query;
+			const isExist = await exists(file);
 
 			if (!isExist) {
 				set.status = 404;
 				return `File "${file}" không tồn tại`;
 			}
 
-			return Bun.file(filePath);
+			return Bun.file(file);
 		}
 		catch (ex) {
 			set.status = 500;

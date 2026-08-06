@@ -20,7 +20,8 @@ export default function() {
 
 			// Liệt kê bên trong folder
 			let lstName = await readdir(folder);
-			let result = [];
+			let lstFolder = [];
+			let lstFile = [];
 			for (let name of lstName) {
 				let fullpath = join(folder, name);
 				let stats = await stat(fullpath);
@@ -36,10 +37,14 @@ export default function() {
 						date: stats.mtime, // Thời gian chỉnh sửa
 					});
 				}
-				result.push(item);
+				if (isFolder) {
+					lstFolder.push(item);
+				} else {
+					lstFile.push(item);
+				}
 			}
 
-			return result;
+			return [...lstFolder, ...lstFile];
 		}
 		catch (ex) {
 			set.status = 500;

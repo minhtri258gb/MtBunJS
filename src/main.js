@@ -22,10 +22,20 @@ initAuthn();
 // Tạo Server HTTP
 const server = new Elysia();
 globalThis.server = server;
+globalThis.app = {};
 
 // 1. Phục vụ file tĩnh từ thư mục /public
 let pathPublic = process.env.PATH_PUBLIC || 'public';
 server.use(staticPlugin({ assets: pathPublic, prefix: '/', indexHTML: true }));
+server.get("*", ({ path: reqPath, set }) => {
+	if (reqPath.startsWith("/api")) {
+		set.status = 404;
+		return 'Not Found';
+	}
+	return new Response(indexHtmlContent, {
+		headers: { "content-type": "text/html; charset=utf-8" },
+	});
+});
 
 // Route cơ bản
 server.get('/', () => new Response(null, { status: 301, headers: { 'Location': '/home' }}));

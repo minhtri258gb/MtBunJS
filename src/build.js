@@ -7,16 +7,13 @@ console.log("🚀 Đang bắt đầu quá trình build ứng dụng...");
 // 1. Cấu hình Bun Build
 const result = await Bun.build({
 	entrypoints: ["./src/main.js"], // File chạy chính của ứng dụng của bạn
-	outdir: "./dist",               // Thư mục chứa kết quả xuất ra
+	outdir: "./",                   // Thư mục chứa kết quả xuất ra
 	naming: "server.[ext]",         // Giữ nguyên tên file gốc
 	target: "bun",                  // Đặt target là node hoặc bun tùy thuộc vào code của bạn
 	compile: true,                  // BẬT tính năng biên dịch thành file .exe đơn lẻ
 	minify: true,                   // Nén code để giảm dung lượng
 	external: [
-		// "@duckdb/*",
-		// "@duckdb/node-api",
-		// "@duckdb/node-bindings",
-		// "@duckdb/node-bindings-win32-x64",
+		'@phtdacosta/tray-hook-win32-x64',
 	],
 });
 

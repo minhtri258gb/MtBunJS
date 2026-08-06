@@ -22,6 +22,7 @@
 	{ "gen": "yearly", "date": "2000-06-28", "name": "Ngày Gia đình Việt Nam" },
 	{ "gen": "yearly", "date": "2000-07-01", "name": "Ngày Bảo hiểm Y tế Việt Nam" },
 	{ "gen": "yearly", "date": "2000-07-27", "name": "Ngày Thương binh Liệt sĩ" },
+	{ "gen": "yearly", "date": "1958-07-30", "name": "Ngày tình bạn" },
 	{ "gen": "yearly", "date": "2000-08-18", "name": "Tết Trung nguyên / Lễ Vu-lan" },
 	{ "gen": "yearly", "date": "2000-08-19", "name": "Ngày hội Toàn dân bảo vệ an ninh Tổ quốc" },
 	{ "gen": "yearly", "date": "2000-09-02", "name": "Ngày Quốc khánh", "type": "holiday" },

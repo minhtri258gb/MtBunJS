@@ -33,7 +33,7 @@ export default async function loadPlugins() {
 					h_debug && console.log(`⚠️ Bỏ qua ${file}: Không tìm thấy 'export default function'`);
 			}
 			catch (error) {
-				h_debug && console.error(`❌ Lỗi khi load plugin ${file}:\n`, error);
+				console.error(`❌ Lỗi khi load plugin ${file}:\n`, error);
 			}
 		}
 	}
