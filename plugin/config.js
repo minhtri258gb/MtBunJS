@@ -1,42 +1,32 @@
 export default function() {
 
-	// Reference
-	let t = lib.elysia.t;
-
 	// Define API
-	server.get('/api/config-get', async ({ request, query, set }) => {
+	app.get('/api/config-get', async (c) => {
 		try {
 
 			// Check Permission
-			let permission = auth.check(request);
+			let permission = auth.check(c);
 
-			let { key } = query;
+			const key = c.req.query('key');
 
-			if (key == null || key == '') {
-				set.status = 400;
-				return 'key không hợp lệ!';
-			}
+			if (key == null || key == '')
+				return c.text('key không hợp lệ!', 400);
 
 			// Kiểm tra quyền
-			if (!permission && !key.startsWith('PATH_')) {
-				set.status = 400;
-				return 'key không hợp lệ!';
-			}
+			if (!permission && !key.startsWith('PATH_'))
+				return c.text('key không hợp lệ!', 400);
 
 			// Lấy biến môi trường
 			let result = process.env[key];
 
-			if (!result || result.length == 0) {
-				set.status = 400;
-				return `Không tìm thấy Key ${key}`;
-			}
+			if (!result || result.length == 0)
+				return c.text(`Không tìm thấy Key ${key}`, 400);
 
 			// Return
-			return result;
+			return c.text(result);
 		}
 		catch (ex) {
-			set.status = 500;
-			return `Không thể thực thi lệnh: ${ex.message}`;
+			return c.text(ex.message, 500);
 		}
 	});
 }

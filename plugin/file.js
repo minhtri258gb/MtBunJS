@@ -3,9 +3,6 @@ import { join, dirname } from 'node:path';
 
 export default function() {
 
-	// Reference
-	let t = lib.elysia.t;
-
 	const publicFolder = join(process.cwd(), 'public');
 
 	// Lấy danh sách PATH
@@ -19,20 +16,16 @@ export default function() {
 	};
 
 	// Define API
-	server.get('/api/file-list', async ({ query, set }) => {
+	app.get('/api/file-list', async (c) => {
 		try {
 
-			const { folder } = query;
+			const folder = c.req.query('folder');
 
-			if (!folder) {
-				set.status = 400;
-				return 'Thiếu tham số folder';
-			}
+			if (!folder)
+				return c.text('Thiếu tham số folder', 400);
 
-			if (!await exists(folder)) {
-				set.status = 404;
-				return `Folder không tồn tại: ${folder}`;
-			}
+			if (!await exists(folder))
+				return c.text(`Folder không tồn tại: ${folder}`, 404);
 
 			const items = await readdir(folder);
 
@@ -49,92 +42,80 @@ export default function() {
 				});
 			}
 
-			return result;
+			return c.json(result);
 		}
 		catch (ex) {
-			set.status = 500;
-			return ex.message;
+			return c.text(ex.message, 500);
 		}
 	});
-	server.get('/api/file-check', async ({ query, set }) => {
+	app.get('/api/file-check', async (c) => {
 		try {
-			const { file } = query;
+			const file = c.req.query('file');
 			const filePath = join(publicFolder, file);
 			return await exists(filePath);
 		}
 		catch (ex) {
-			set.status = 500;
-			return ex.message;
+			return c.text(ex.message, 500);
 		}
 	});
-	server.get('/api/file-read', async ({ query, set }) => {
+	app.get('/api/file-read', async (c) => {
 		try {
-			const { file } = query;
+			const file = c.req.query('file');
 			const isExist = await exists(file);
 
-			if (!isExist) {
-				set.status = 404;
-				return `File "${file}" không tồn tại`;
-			}
+			if (!isExist)
+			return c.text(`File "${file}" không tồn tại`, 404);
 
-			return Bun.file(file);
+			return new Response(Bun.file(file));
 		}
 		catch (ex) {
-			set.status = 500;
-			return ex.message;
+			return c.text(ex.message, 500);
 		}
 	});
-	server.post('/api/file-write', async ({ request, query, body, set }) => {
+	app.post('/api/file-write', async (c) => {
 		try {
 
 			// Check Permission
-			if (!auth.check(request)) {
-				set.status = 403;
-				return ex.message;
-			}
+			// if (!auth.check(request)) {
+			// 	set.status = 403;
+			// 	return 'Bạn không có quyền thực hiện thao tác này!';
+			// }
 
-			let { folder, confirm } = query;
-			let { file } = body;
+			const folder = c.req.query('folder');
+			const confirm = c.req.query('confirm');
+			const file = await c.req.blob();
 
 			const filePath = join(folder, file.name);
 
 			// Kiểm tra tồn tại
 			if (!confirm) {
 				let isExists = await exists(filePath);
-				if (isExists) {
-					set.status = 400;
-					return 'File đã tồn tại!';
-				}
+				if (isExists)
+					return c.text('File đã tồn tại!', 400);
 			}
 
 			// Ghi file vào đĩa
 			await Bun.write(filePath, file);
 
 			// Return
-			set.status = 201;
-			return true;
+			return c.text('true');
 		}
 		catch (ex) {
-			set.status = 500;
-			return ex.message;
+			return c.text(ex.message, 500);
 		}
-	}, {
-		// Validate dữ liệu truyền lên bắt buộc phải có file (gửi qua Form Data)
-		body: t.Object({
-			file: t.File()
-		})
 	});
-	server.post('/api/file-writeText', async ({ request, query, body, set }) => {
+	app.post('/api/file-writeText', async (c) => {
 		try {
 
 			// Check Permission
-			if (!auth.check(request)) {
-				set.status = 403;
-				return ex.message;
-			}
+			// if (!auth.check(request)) {
+			// 	set.status = 403;
+			// 	return 'Bạn không có quyền thực hiện thao tác này!';
+			// }
 
-			let { file, confirm } = query;
-			let content = body;
+			const file = c.req.query('file');
+			const confirm = c.req.query('confirm');
+			const content = await c.req.text();
 
 			// Kiểm tra folder tồn tại
 			const folderPath = dirname(file);
@@ -144,25 +125,21 @@ export default function() {
 			// Kiểm tra tồn tại
 			if (!confirm) {
 				let isExists = await exists(file);
-				if (isExists) {
-					set.status = 400;
-					return 'File đã tồn tại!';
-				}
+				if (isExists)
+					return c.text('File đã tồn tại!', 400);
 			}
 
 			// Ghi file vào đĩa
 			await Bun.write(file, content);
 
 			// Return
-			set.status = 201;
-			return { fileName: file.name, size: file.size };
+			return c.json({ fileName: file.name, size: file.size }, 201);
 		}
 		catch (ex) {
-			set.status = 500;
-			return ex.message;
+			return c.text(ex.message, 500);
 		}
 	});
-	// server.post('/api/file-delete', async ({ query: { file }, set }) => {
+	// app.post('/api/file-delete', async ({ query: { file }, set }) => {
 	// 	try {
 	// 		const filePath = join(publicFolder, file);
 	// 		const isExist = await exists(filePath);

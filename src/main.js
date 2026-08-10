@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
-import { Elysia } from 'elysia';
-import { staticPlugin } from '@elysiajs/static';
+import { Hono } from 'hono';
+import { serveStatic, createBunWebSocket } from 'hono/bun';
 
 import registerLibrary from './lib';
 import initAuthn from './auth';
@@ -20,25 +20,14 @@ registerLibrary();
 initAuthn();
 
 // Tạo Server HTTP
-const server = new Elysia();
-globalThis.server = server;
-globalThis.app = {};
-
-// 1. Phục vụ file tĩnh từ thư mục /public
-let pathPublic = process.env.PATH_PUBLIC || 'public';
-server.use(staticPlugin({ assets: pathPublic, prefix: '/', indexHTML: true }));
-server.get("*", ({ path: reqPath, set }) => {
-	if (reqPath.startsWith("/api")) {
-		set.status = 404;
-		return 'Not Found';
-	}
-	return new Response(indexHtmlContent, {
-		headers: { "content-type": "text/html; charset=utf-8" },
-	});
-});
+const app = new Hono();
+const { upgradeWebSocket, websocket } = createBunWebSocket();
+globalThis.app = app;
+globalThis.mem = {};
+globalThis.lib.hono.upgradeWebSocket = upgradeWebSocket;
 
 // Route cơ bản
-server.get('/', () => new Response(null, { status: 301, headers: { 'Location': '/home' }}));
+app.get('/', (c) => c.redirect('/home', 301));
 
 // Khởi tạo Plugin
 await loadPlugins();
@@ -50,8 +39,15 @@ await trayicon();
 if (process.env.DEBUG != 'true')
 	hiddenConsole(true);
 
-// 3. Khởi chạy Server
+// File tĩnh từ thư mục /public
+let pathPublic = process.env.PATH_PUBLIC || 'public';
+app.use('/*', serveStatic({ root: pathPublic }));
+
+// Khởi chạy Server
 let port = Number(process.env.PORT || '3000');
-server.listen(port, () => {
-	console.log(`🦊 Server Bun (JS) đang chạy tại: http://localhost:${port}`);
+Bun.serve({
+	port,
+	fetch: app.fetch,
+	websocket: websocket
 });
+console.log(`🦊 Server Bun (JS) đang chạy tại: http://localhost:${port}`);

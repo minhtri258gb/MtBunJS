@@ -1,9 +1,9 @@
 export default function initAuthn() {
 	globalThis.auth = {
-		check(request) {
+		check(c) {
 
 			// Nếu từ localhost thì là admin
-			const url = new URL(request.url);
+			const url = new URL(c.env.url);
 			const hostname = url.hostname;
 			return (
 				hostname === 'localhost'

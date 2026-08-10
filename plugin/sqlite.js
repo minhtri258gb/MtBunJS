@@ -2,31 +2,23 @@ import { Database } from 'bun:sqlite';
 
 export default function() {
 
-	// Reference
-	let t = lib.elysia.t;
-
 	// Define API
-	server.post('/api/sqlite-run', async ({ request, body, set }) => {
+	app.post('/api/sqlite-run', async (c) => {
 		try {
 
 			// Check Permission
-			if (!auth.check(request)) {
-				set.status = 403;
-				return { success: false, error: ex.message };
-			}
+			if (!auth.check(request))
+				return c.json({ success: false, error: ex.message }, 403);
 
 			// Input
+			const body = await c.req.json();
 			let { database, sql } = body;
 
 			// Validate
-			if (database.length == 0) {
-				set.status = 400;
-				return 'Missing body: database';
-			}
-			if (sql.length == 0) {
-				set.status = 400;
-				return 'Missing body: sql';
-			}
+			if (database.length == 0)
+				return c.text('Missing body: database', 400);
+			if (sql.length == 0)
+				return c.text('Missing body: sql', 400);
 
 			// Use DuckDB
 			const db = new Database(`database/${database}.sqlite`);
@@ -41,23 +33,21 @@ export default function() {
 				db.close(false);
 			}
 
-			if (errorMessage.length > 0) {
-				set.status = 400;
-				return errorMessage;
-			}
+			if (errorMessage.length > 0)
+				return c.text(errorMessage, 400);
 
 			// Return
-			return true;
+			return c.json(true);
 		}
 		catch (ex) {
-			set.status = 500;
-			return { success: false, error: `Không thể thực thi lệnh: ${ex.message}` };
+			return c.text(ex.message, 500);
 		}
 	});
-	server.post('/api/sqlite-query', async ({ body, set }) => {
+	app.post('/api/sqlite-query', async (c) => {
 		try {
 
 			// Input
+			const body = await c.req.json();
 			let { database, sql } = body;
 
 			// Ref
@@ -79,14 +69,13 @@ export default function() {
 			}
 
 			if (errorMessage.length > 0)
-				return { success: false, message: errorMessage };
+				return c.text(errorMessage, 400);
 
 			// Return
-			return { success: true, result: rowObjects };
+			return c.json(rowObjects);
 		}
 		catch (ex) {
-			set.status = 500;
-			return { success: false, error: `Không thể thực thi lệnh: ${ex.message}` };
+			return c.text(ex.message, 500);
 		}
 	});
 }

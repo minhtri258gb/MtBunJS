@@ -4,15 +4,13 @@ import { join, dirname } from 'node:path';
 export default function() {
 
 	// Define API
-	server.get('/api/jstree', async ({ query, set }) => {
+	app.get('/api/jstree', async (c) => {
 		try {
 
-			let { folder } = query;
+			const folder = c.req.query('folder');
 
-			if (!folder) {
-				set.status = 400;
-				return { id: 0 };
-			}
+			if (!folder)
+				return c.json({ id: 0 }, 400);
 
 			// Pre Process Input
 			// if (folder[folder.length-1] != '/')
@@ -44,11 +42,10 @@ export default function() {
 				}
 			}
 
-			return [...lstFolder, ...lstFile];
+			return c.json([...lstFolder, ...lstFile]);
 		}
 		catch (ex) {
-			set.status = 500;
-			return ex.message;
+			return c.text(ex.message, 500);
 		}
 	});
 }

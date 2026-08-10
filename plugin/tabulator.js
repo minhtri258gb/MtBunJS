@@ -4,23 +4,20 @@ import { join, dirname } from 'node:path';
 export default function() {
 
 	// Define API
-	server.post('/api/tabulator-sqlite', async ({ body, set }) => {
+	app.post('/api/tabulator-sqlite', async (c) => {
 		try {
 
+			const body = await c.req.json();
 			let { database, select, from, where, size, page, sort, filter } = body;
 
 			// Reference
 			let sqlite = lib.sqlite;
 
 			// Validate
-			if (!database || database.length == 0) {
-				set.status = 400;
-				return 'Missing body: database';
-			}
-			if (from.length == 0) {
-				set.status = 400;
-				return 'Missing body: from';
-			}
+			if (!database || database.length == 0) 
+				return c.text('Missing body: database', 400);
+			if (from.length == 0)
+				return c.text('Missing body: from', 400);
 
 			// Process input
 			let dbPath = `database/${database}.sqlite`;
@@ -85,14 +82,13 @@ export default function() {
 			if (isPaging) {
 				let total = count?.total || 0;
 				let maxPage = Math.ceil(total / size);
-				return { data, last_page: maxPage };
+				return c.json({ data, last_page: maxPage });
 			}
 			else
 				return data;
 		}
 		catch (ex) {
-			set.status = 500;
-			return ex.message;
+			return c.text(ex.message, 500);
 		}
 	});
 }

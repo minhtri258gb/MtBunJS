@@ -12,9 +12,8 @@
     "allowNative": true
   },
   "dependencies": {
-    "@elysiajs/static": "^1.4.10",
     "dotenv": "^17.4.2",
-    "elysia": "^1.4.29",
+    "hono": "^4.13.1",
     "hyparquet": "^1.26.2",
     "tray-hook": "^1.1.1"
   }

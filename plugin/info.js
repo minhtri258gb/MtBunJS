@@ -3,7 +3,7 @@ import { networkInterfaces } from 'os';
 export default function() {
 
 	// Define API
-	server.get('/api/info-ip', async ({ set }) => {
+	app.get('/api/info-ip', async (c) => {
 		try {
 
 			let nets = networkInterfaces();
@@ -18,18 +18,16 @@ export default function() {
 					if (net.family === familyV4Value && !net.internal) {
 
 						// Retuen found
-						return net.address;
+						return c.text(net.address);
 					}
 				}
 			}
 
 			// Retuen not found
-			set.status = 400;
-			return 'IP not found';
+			return c.text('IP not found', 400);
 		}
 		catch (ex) {
-			set.status = 500;
-			return `Không thể thực thi lệnh: ${ex.message}`;
+			return c.text(ex.message, 500);
 		}
 	});
 }

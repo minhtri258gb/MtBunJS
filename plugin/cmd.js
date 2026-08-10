@@ -1,26 +1,20 @@
 export default function() {
 
-	// Reference
-	let t = lib.elysia.t;
-
 	// Define API
-	server.post('/api/cmd', async ({ request, body, set }) => {
+	app.post('/api/cmd', async (c) => {
 		try {
 
 			// Check Permission
-			if (!auth.check(request)) {
-				set.status = 403;
-				return ex.message;
-			}
+			if (!auth.check(c))
+				return c.text(ex.message, 403);
 
+			const body = await c.req.json();
 			let { cmd, args, cwd, paths } = body;
 
 			if (paths == null)
 				paths = [];
-			if (cmd == null || cmd.length == 0) {
-				set.status = 400;
-				return 'Không tìm thấy lệnh';
-			}
+			if (cmd == null || cmd.length == 0)
+				return c.text('Không tìm thấy lệnh', 400);
 
 			// Sử dụng Bun.spawn để thực thi lệnh hệ thống dưới dạng non-blocking
 			const childProcess = Bun.spawn([cmd, ...(args || [])], {
@@ -39,21 +33,11 @@ export default function() {
 			const exitCode = await childProcess.exited;
 
 			// Return
-			return { exit: exitCode, output: stdout.trim(), error: stderr.trim() };
+			return c.json({ exit: exitCode, output: stdout.trim(), error: stderr.trim() });
 		}
 		catch (ex) {
-			set.status = 500;
-			return `Không thể thực thi lệnh: ${ex.message}`;
+			return c.text(ex.message, 500);
 		}
 	});
-	// , {
-	// 	// Validate dữ liệu đầu vào bằng TypeBox của Elysia
-	// 	body: t.Object({
-	// 		paths: t.Optional(t.Array(t.String())),
-	// 		cmd: t.String({ error: 'Command phải là một chuỗi ký tự' }),
-	// 		args: t.Optional(t.Array(t.String())),
-	// 		cwd: t.String()
-	// 	})
-	// }
 
 }

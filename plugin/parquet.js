@@ -4,11 +4,11 @@ export default function() {
 	let hyparquet = lib.hyparquet;
 
 	// Define API
-	server.post('/api/parquet-get', async ({ body, set }) => {
+	app.post('/api/parquet-get', async (c) => {
 		try {
 
 			// Input
-			const { file } = body;
+			const file = await c.req.blob();
 
 			let filepath = `database/${file}.parquet`;
 
@@ -19,11 +19,10 @@ export default function() {
 			const data = await hyparquet.parquetReadObjects({ file: fileParquet });
 
 			// Return
-			return { success: true, result: data };
+			return c.json({ success: true, result: data });
 		}
 		catch (ex) {
-			set.status = 500;
-			return { success: false, message: ex.message };
+			return c.text(ex.message, 500);
 		}
 	});
 }

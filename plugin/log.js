@@ -10,7 +10,7 @@ import { open, stat } from 'fs/promises';
  */
 export default function() {
 
-	globalThis.app.logs = {
+	globalThis.mem.logs = {
 		clientFile: new Map(), // client -> path file
 		fileWatches: new Map(), // path file -> entry theo dõi
 	};
@@ -25,7 +25,7 @@ export default function() {
 
 	// Đọc phần dữ liệu MỚI được ghi thêm vào file (từ entry.position tới hết file)
 	const readNewContent = async function(filePath) {
-		const entry = app.logs.fileWatches.get(filePath);
+		const entry = mem.logs.fileWatches.get(filePath);
 		if (!entry || entry.reading)
 			return;
 
@@ -73,7 +73,7 @@ export default function() {
 
 	// Đăng ký 1 client theo dõi 1 file. Nếu file chưa có ai theo dõi thì tạo watcher mới.
 	const watchFile = async function(filePath, ws) {
-		let entry = app.logs.fileWatches.get(filePath);
+		let entry = mem.logs.fileWatches.get(filePath);
 		console.log('watchFile', filePath, entry)
 
 		if (!entry) {
@@ -101,12 +101,12 @@ export default function() {
 			});
 
 			entry = { watcher, position, clients, reading: false };
-			app.logs.fileWatches.set(filePath, entry);
+			mem.logs.fileWatches.set(filePath, entry);
 			console.log(`[+] Bắt đầu theo dõi file: ${filePath}`);
 		}
 
 		entry.clients.add(ws);
-		app.logs.clientFile.set(ws.id, filePath);
+		mem.logs.clientFile.set(ws.id, filePath);
 		console.log(`Client đang xem "${filePath}" (tổng ${entry.clients.size} client)`);
 
 		safeSend(ws, { type: "watching", path: filePath });
@@ -115,11 +115,11 @@ export default function() {
 	// Hủy theo dõi cho 1 client (do đổi file hoặc ngắt kết nối).
 	// Nếu sau khi bỏ client đó ra mà không còn client nào xem file -> tắt watcher, giải phóng tài nguyên.
 	const unwatchFile = function(ws) {
-		const filePath = app.logs.clientFile.get(ws.id);
+		const filePath = mem.logs.clientFile.get(ws.id);
 		if (!filePath)
 			return;
 
-		const entry = app.logs.fileWatches.get(filePath);
+		const entry = mem.logs.fileWatches.get(filePath);
 		if (entry) {
 			for (const client of entry.clients) {
 				if (client.id === ws.id) {
@@ -132,28 +132,25 @@ export default function() {
 
 			if (entry.clients.size === 0) {
 				entry.watcher.close();
-				app.logs.fileWatches.delete(filePath);
+				mem.logs.fileWatches.delete(filePath);
 				console.log(`[-] Không còn client nào xem "${filePath}", đã dừng theo dõi.`);
 			}
 		}
 
-		app.logs.clientFile.delete(ws.id);
+		mem.logs.clientFile.delete(ws.id);
 	}
 
 	// Define WebSocket API
-	server.ws('/logs', {
-
-		// Xử lý khi client kết nối
-		open(ws) {
+	app.get('/logs', lib.hono.upgradeWebSocket((c) => { return {
+		onOpen(event, ws) {
 			ws.send(JSON.stringify({ success: true }));
 			console.log("Client kết nối WebSocket /logs");
 		},
-
-		// Xử lý khi nhận message từ client
-		message(ws, raw) {
+		onMessage(event, ws) {
+			const message = event.data.toString();
 			let msg = '';
 			try {
-				msg = typeof raw === "string" ? JSON.parse(raw) : raw;
+				msg = typeof message === "string" ? JSON.parse(message) : message;
 			} catch {
 				safeSend(ws, { type: "error", message: "Message không hợp lệ (cần JSON)" });
 				return;
@@ -170,11 +167,9 @@ export default function() {
 				safeSend(ws, { type: "error", message: "Không hiểu message" });
 			}
 		},
-
-		// Xử lý khi client ngắt kết nối
-		close(ws, code, message) {
+		onClose(event, ws) {
 			unwatchFile(ws);
 			console.log("Client ngắt kết nối");
 		},
-	});
+	}}));
 }
