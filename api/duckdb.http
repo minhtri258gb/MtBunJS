@@ -12,8 +12,8 @@ POST {{host}}/api/duckdb-run
 Content-Type: application/json
 
 {
-	"database": "D:/Projects/MtBunJS/private/mydb.duckdb",
-	"sql": "CREATE TABLE users (id INTEGER PRIMARY KEY, name VARCHAR, email VARCHAR, created_at TIMESTAMP DEFAULT current_timestamp)"
+	"database": "application",
+	"sql": "CREATE TABLE application (id INTEGER PRIMARY KEY, name VARCHAR, email VARCHAR, created_at TIMESTAMP DEFAULT current_timestamp)"
 }
 
 ###
@@ -23,8 +23,8 @@ POST {{host}}/api/duckdb-run
 Content-Type: application/json
 
 {
-	"database": "D:/Projects/MtBunJS/private/mydb.duckdb",
-	"sql": "DROP TABLE users"
+	"database": "application",
+	"sql": "DROP TABLE application"
 }
 
 ###
@@ -34,7 +34,7 @@ POST {{host}}/api/duckdb-run
 Content-Type: application/json
 
 {
-	"database": "D:/Projects/MtBunJS/private/mydb.duckdb",
+	"database": "application",
 	"sql": "INSER users()"
 }
 
@@ -45,7 +45,7 @@ POST {{host}}/api/duckdb-query
 Content-Type: application/json
 
 {
-	"database": "D:/Projects/MtBunJS/private/music.duckdb",
+	"database": "music",
 	"sql": "SELECT name,rate,duration,array_to_string(tags,',') tags,decibel,trackbegin,trackend,miss FROM music"
 }
 

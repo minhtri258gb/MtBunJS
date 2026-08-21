@@ -1,13 +1,14 @@
-import { Database } from 'bun:sqlite';
-
 export default function() {
 
+	// Reference
+	let duckdb = lib.duckdb;
+
 	// Define API
-	app.post('/api/sqlite-run', async (c) => {
+	app.post('/api/duckdb-run', async (c) => {
 		try {
 
 			// Check Permission
-			if (!auth.check(request))
+			if (!auth.check(c))
 				return c.text('Bạn không có quyền thực hiện thao tác này!', 403);
 
 			// Input
@@ -19,59 +20,70 @@ export default function() {
 			if (sql.length == 0)
 				return c.text('Missing body: sql', 400);
 
-			// Use SQLite
-			const db = new Database(`database/${database}.sqlite`);
+			// Ref
+			let duckdb = lib.duckdb;
+
+			// Run DuckDB
+			const db = await duckdb.Database.create(`database/${database}.duckdb`);
+
 			let errorMessage = '';
 			try {
-				db.run(sql);
+				await db.run(sql);
 			}
 			catch (ex) {
 				errorMessage = ex.message;
 			}
 			finally {
-				db.close(false);
+				db.close();
 			}
 
 			if (errorMessage.length > 0)
 				return c.text(errorMessage, 400);
 
 			// Return
-			return c.json(true);
+			return c.text('success');
 		}
 		catch (ex) {
 			return c.text(ex.message, 500);
 		}
 	});
-	app.post('/api/sqlite-query', async (c) => {
+	app.post('/api/duckdb-query', async (c) => {
 		try {
 
 			// Input
-			const body = await c.req.json();
-			let { database, sql } = body;
+			let { database, sql } = await c.req.json();
+
+			// Validate
+			if (database.length == 0)
+				return c.text('Missing body: database', 400);
+			if (sql.length == 0)
+				return c.text('Missing body: sql', 400);
 
 			// Ref
-			// let duckdb = globalThis.lib.duckdb;
+			let duckdb = lib.duckdb;
 
 			// Use DuckDB
-			const db = new Database(`database/${database}.db`, { readonly: true });
-			let rowObjects = null, errorMessage = '';
+			const db = new duckdb.Database(`database/${database}.duckdb`);
+			const conn = db.connect();
+
+			let rows = [], errorMessage = '';
 			try {
-				using query = db.query(sql);
-				const reader = await connection.runAndReadAll(sql);
-				rowObjects = query.get();
+				rows = await new Promise((resolve, reject) => {
+					conn.all(sql, (err, rows) => err ? reject(err) : resolve(rows));
+				});
 			}
 			catch (ex) {
 				errorMessage = ex.message;
 			}
 			finally {
-				db.close(false);
+				conn.close();
 			}
 
 			if (errorMessage.length > 0)
 				return c.text(errorMessage, 400);
 
 			// Return
-			return c.json(rowObjects);
+			return c.json(rows);
 		}
 		catch (ex) {
 			return c.text(ex.message, 500);

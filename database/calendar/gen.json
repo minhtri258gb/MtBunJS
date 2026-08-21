@@ -38,5 +38,6 @@
 	{ "gen": "yearly", "date": "2000-12-24", "name": "Lễ Giáng Sinh", "type": "holiday" },
 	{ "gen": "yearly", "date": "2000-12-25", "name": "Lễ Giáng Sinh", "type": "holiday" },
 	{ "gen": "yearly-lunar", "date": "2000-01-01", "name": "Tết Nguyên Đán", "type": "holiday" },
-	{ "gen": "yearly-lunar", "date": "2000-03-10", "name": "Giỗ Tổ Hùng Vương", "type": "holiday" }
+	{ "gen": "yearly-lunar", "date": "2000-03-10", "name": "Giỗ Tổ Hùng Vương", "type": "holiday" },
+	{ "gen": "yearly-lunar", "date": "2000-07-07", "name": "Lễ Thất Tịch", "type": "holiday" }
 ]
