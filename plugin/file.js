@@ -3,19 +3,21 @@ import { join, dirname } from 'node:path';
 
 export default function() {
 
-	const publicFolder = join(process.cwd(), 'public');
-
-	// Lấy danh sách PATH
-	let listPath = [];
-	for (let key in process.env) {
-		if (key.startsWith('PATH_'))
-			listPath.push(process.env[key]);
-	}
-	let fooCheckPath = (path) => {
-
+	globalThis.file = {
+		static: {},
 	};
 
-	// Define API
+	// Lấy danh sách PATH
+	// let listPath = [];
+	// for (let key in process.env) {
+	// 	if (key.startsWith('PATH_'))
+	// 		listPath.push(process.env[key]);
+	// }
+	// let fooCheckPath = (path) => {
+
+	// };
+
+	// Define API - File
 	app.get('/api/file-list', async (c) => {
 		try {
 
@@ -51,8 +53,7 @@ export default function() {
 	app.get('/api/file-check', async (c) => {
 		try {
 			const file = c.req.query('file');
-			const filePath = join(publicFolder, file);
-			return await exists(filePath);
+			return await exists(file);
 		}
 		catch (ex) {
 			return c.text(ex.message, 500);
@@ -108,10 +109,8 @@ export default function() {
 		try {
 
 			// Check Permission
-			// if (!auth.check(request)) {
-			// 	set.status = 403;
-			// 	return 'Bạn không có quyền thực hiện thao tác này!';
-			// }
+			// if (!auth.check(c))
+			// 	return c.text('Bạn không có quyền thực hiện thao tác này!'), 403;
 
 			const file = c.req.query('file');
 			const confirm = c.req.query('confirm');
@@ -139,22 +138,84 @@ export default function() {
 			return c.text(ex.message, 500);
 		}
 	});
-	// app.post('/api/file-delete', async ({ query: { file }, set }) => {
+	// app.post('/api/file-delete', async (c) => {
 	// 	try {
-	// 		const filePath = join(publicFolder, file);
+	// 		const filePath = c.req.query('file');
 	// 		const isExist = await exists(filePath);
 
-	//		if (!isExist) {
-	//			set.status = 404;
-	//			return 'File không tồn tại';
-	//		}
+	//		if (!isExist)
+	//			c.text('File không tồn tại', 404);
 
 	// 		await unlink(filePath);
-	// 		return { success: true, message: `Đã xóa file ${filename} thành công` };
+	// 		return c.text(`Đã xóa file ${filename} thành công`);
 	// 	}
 	// 	catch (ex) {
-	// 		set.status = 500;
-	// 		return ex.message;
+	// 		return c.text(ex.message, 500);
 	// 	}
 	// });
+
+	// Define API - static
+	app.get(`/static/:name/*`, async (c) => {
+		try {
+
+			const name = c.req.param('name');
+
+			const folder = globalThis.file.static[name];
+			if (!folder || folder.length == 0)
+				return c.text(`Static "${name}" not registered`, 404);
+
+			let filepath = c.req.path.replace(`/static/${name}/`, '');
+			if (!filepath)
+				return c.text('Missing file path', 400)
+
+			filepath = filepath.replaceAll('\\', '/');
+			const fullpath = folder + '/' + filepath;
+			const filename = filepath.substring(filepath.lastIndexOf('/') + 1)
+
+			console.log(fullpath);
+
+			if (!await exists(fullpath))
+				return c.text('File not found', 404);
+
+			const file = Bun.file(fullpath);
+
+			return new Response(file, {
+				headers: {
+					'Content-Type': file.type || 'application/octet-stream',
+					'Content-Disposition': `inline; filename="${filename}"`
+				}
+			});
+		}
+		catch (ex) {
+			return c.text(`Error: ${ex.message}`, 500);
+		}
+	});
+	app.post('/api/file-register-static', async (c) => {
+		try {
+
+			// Check Permission
+			if (!auth.check(c))
+				return c.text('Bạn không có quyền thực hiện thao tác này!', 403);
+
+			// Input
+			const { name, folder } = await c.req.json();
+
+			// Kiểm tra quyền folder
+			// #TODO
+
+			// Kiểm tra đã đăng ký chưa
+			const checkFolder = globalThis.file.static[name];
+			if (checkFolder && checkFolder.length > 0)
+				return c.text(`Static "${name}" registered`, 201);
+
+			// Đăng ký api static
+			globalThis.file.static[name] = folder;
+
+			// Return
+			return c.text('success');
+		}
+		catch (ex) {
+			return c.text(ex.message, 500);
+		}
+	});
 }
