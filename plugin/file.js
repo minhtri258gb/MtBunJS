@@ -172,8 +172,6 @@ export default function() {
 			const fullpath = folder + '/' + filepath;
 			const filename = filepath.substring(filepath.lastIndexOf('/') + 1)
 
-			console.log(fullpath);
-
 			if (!await exists(fullpath))
 				return c.text('File not found', 404);
 

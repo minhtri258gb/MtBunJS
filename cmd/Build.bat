@@ -1,15 +1,22 @@
 @echo off
 
-title BUILD
+if not defined WT_SESSION (
+  start wt nt -p "Command Prompt" -d . "%~f0"
+  exit
+)
 
-set PATH=D:\Apps\bun-baseline;%PATH%
+title Build
 
 cd ..
 
 :: bun run src/build.js
-bun build ./src/main.js --compile --outfile server.exe
+call bun build ./src/main.js ^
+	--compile ^
+	--outfile dist/server.exe ^
+	--bundle ^
+	--minify
 
-echo Hoan thanh.
+::	--external=duckdb-async
 
 pause
 :: timeout /t 5

@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "duckdb-async": "^1.4.2",
     "hono": "^4.13.1",
     "hyparquet": "^1.26.2",
     "tray-hook": "^1.1.1"
